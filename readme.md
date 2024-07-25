@@ -1,4 +1,4 @@
-# Sentiment Analysis Web Application
+# Mood Detection Web Application
 
 Repositori ini berisi aplikasi web untuk analisis sentimen dengan dukungan untuk input teks dan pengunggahan file audio. Aplikasi ini dibangun menggunakan Laravel untuk frontend dan Flask untuk backend. Backend Flask mencakup model analisis sentimen dan fitur audio-ke-teks menggunakan model Whisper OpenAI. Dengan menggunakan Naive bayes dan Tf-idf.
 
