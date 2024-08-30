@@ -13,7 +13,6 @@
             </div>
             
             <div class="audio-section mt-5">
-                <!-- <h2 class="text-center">Atau Unggah File Audio</h2> -->
                 <hr>
                 <div class="form-group">
                     <label for="audio" class="form-label">Unggah File Audio:</label>
@@ -38,6 +37,16 @@
                         <p class="card-text"><strong>Teks:</strong> {{ $text }}</p>
                         <p class="card-text"><strong>Prediksi:</strong> <span class="{{ $prediction === 'Positif' ? 'text-success' : 'text-danger' }}">{{ $prediction }}</span></p>
                         <p class="card-text"><strong>Skor:</strong> {{ $score }}</p>
+
+                        @if(isset($suggestions))
+                            <hr>
+                            <h4 class="mt-4">Saran untuk Anda:</h4>
+                            <ul>
+                                @foreach($suggestions as $suggestion)
+                                    <li>{{ $suggestion }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </div>
                 </div>
             </div>

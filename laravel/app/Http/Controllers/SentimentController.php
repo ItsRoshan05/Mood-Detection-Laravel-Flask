@@ -46,7 +46,9 @@ class SentimentController extends Controller
             if ($response->successful()) {
                 $prediction = $response->json()['prediction'];
                 $score = $response->json()['score'];
+                $suggestions = $response->json()['suggestions'];
 
+                // Save the prediction result to the database
                 $sentimentPrediction = Predictions::create([
                     'text' => $text,
                     'prediction' => $prediction,
@@ -56,10 +58,12 @@ class SentimentController extends Controller
 
                 $sentimentPrediction->save();
 
+                // Pass prediction, score, text, and suggestions to the view
                 return view('sentiment.sentiment', [
                     'prediction' => $prediction,
                     'score' => $score,
                     'text' => $text,
+                    'suggestions' => $suggestions
                 ]);
             } else {
                 return redirect()->back()->with('error', 'Prediction failed.');

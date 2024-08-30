@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import joblib
+import random
 from openai import OpenAI
 import os
 
@@ -10,6 +11,52 @@ model = joblib.load('model/main_0_1.joblib')
 tfidf = joblib.load('model/mainTfidf_0_1.joblib')
 
 client = OpenAI(api_key='Masukan_API_KEY_KALIAN_DISINI')
+
+# Dictionary containing suggestions for each class
+suggestions_dict = {
+    'Love': [
+        "Lanjutkan untuk menunjukkan kasih sayang kepada orang-orang terdekat.",
+        "Ungkapkan rasa cinta Anda dengan cara yang kreatif.",
+        "Berikan perhatian lebih kepada orang yang Anda cintai.",
+        "Jangan ragu untuk mengungkapkan perasaan Anda.",
+        "Cobalah untuk merencanakan waktu berkualitas bersama orang yang Anda cintai."
+    ],
+    'Anger': [
+        "Coba tenangkan diri dengan mengambil napas dalam-dalam.",
+        "Mengalihkan pikiran ke aktivitas yang menyenangkan bisa membantu.",
+        "Hindari keputusan impulsif saat marah.",
+        "Cobalah untuk berbicara dengan seseorang yang Anda percayai.",
+        "Jika kemarahan berlanjut, mungkin baik untuk mencari bantuan profesional."
+    ],
+    'Joy': [
+        "Bagikan kebahagiaan Anda dengan orang lain.",
+        "Terus lakukan hal-hal yang membuat Anda bahagia.",
+        "Jadikan momen ini sebagai pengingat untuk mensyukuri hal-hal baik dalam hidup.",
+        "Kebahagiaan Anda bisa menjadi inspirasi bagi orang lain.",
+        "Nikmati momen ini sepenuhnya."
+    ],
+    'Fear': [
+        "Coba hadapi ketakutan Anda secara perlahan dan bertahap.",
+        "Berbicara dengan teman atau keluarga dapat memberikan ketenangan.",
+        "Mencari informasi lebih lanjut bisa membantu mengurangi rasa takut.",
+        "Jika ketakutan terus berlanjut, pertimbangkan untuk berkonsultasi dengan profesional.",
+        "Fokus pada apa yang dapat Anda kendalikan."
+    ],
+    'Sad': [
+        "Jangan ragu untuk berbagi perasaan dengan seseorang yang Anda percayai.",
+        "Cobalah untuk melakukan aktivitas yang biasanya Anda nikmati.",
+        "Terkadang, istirahat sejenak dari rutinitas bisa membantu.",
+        "Jika kesedihan berlanjut, pertimbangkan untuk mencari bantuan profesional.",
+        "Ingatlah bahwa tidak apa-apa untuk merasa sedih."
+    ],
+    'Neutral': [
+        "Lanjutkan aktivitas Anda dan tetaplah fokus.",
+        "Tidak ada yang salah dengan merasa netral, teruslah melangkah.",
+        "Gunakan waktu ini untuk refleksi diri.",
+        "Terkadang, perasaan netral adalah bagian dari proses.",
+        "Fokus pada tujuan Anda dan teruslah berusaha."
+    ]
+}
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -24,8 +71,16 @@ def predict():
         prediction = model.predict(text_tfidf)[0]
         score = model.predict_proba(text_tfidf)[0].max()  # Get the probability of the predicted class
 
-        # Return prediction and score in JSON format
-        return jsonify({'prediction': prediction, 'score': score})
+        # Select one suggestion based on the predicted sentiment
+        suggestions = suggestions_dict.get(prediction, ["Tidak ada saran yang tersedia"])
+        suggestion = random.choice(suggestions)
+
+        # Recommend consulting a professional if the prediction is fear, anger, or sad with a high score
+        if score > 0.7 and prediction in ['Fear', 'Anger', 'Sad']:
+            suggestion += " pertimbangkan untuk berkonsultasi dengan psikolog atau psikiater."
+
+        # Return prediction, score, and suggestion in JSON format
+        return jsonify({'prediction': prediction, 'score': score, 'suggestions': [suggestion]})
     else:
         return jsonify({'error': 'No text provided'}), 400
 
